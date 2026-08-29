@@ -1,0 +1,72 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Locate project root
+        id: locate
+        shell: bash
+        run: |
+          set -e
+          GRADLE_FILE=$(find "$GITHUB_WORKSPACE" -maxdepth 4 -type f -name "settings.gradle.kts" | head -n 1)
+          if [ -z "$GRADLE_FILE" ]; then
+            echo "::error::Could not find settings.gradle.kts anywhere in the repo."
+            echo "Here's what IS in the repo, up to 3 levels deep:"
+            find "$GITHUB_WORKSPACE" -maxdepth 3
+            exit 1
+          fi
+          PROJECT_DIR=$(dirname "$GRADLE_FILE")
+          echo "Found project at: $PROJECT_DIR"
+          echo "project_dir=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK and CMake
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager --install "ndk;26.1.10909125" "cmake;3.22.1"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+
+      - name: Build debug APK
+        working-directory: ${{ steps.locate.outputs.project_dir }}
+        run: gradle assembleDebug --stacktrace
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/26.1.10909125
+
+      - name: Upload APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rawcam-debug-apk
+          path: ${{ steps.locate.outputs.project_dir }}/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
+
+      - name: Upload full build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            ${{ steps.locate.outputs.project_dir }}/app/build/outputs/logs/**
+            ${{ steps.locate.outputs.project_dir }}/**/build/tmp/**/output.txt
+          if-no-files-found: ignore
