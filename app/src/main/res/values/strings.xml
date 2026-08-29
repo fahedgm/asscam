@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">35PHOTO</string>
+
+    <string name="label_capture">Capture</string>
+    <string name="label_last_shot">Last photo — tap to view</string>
+    <string name="label_raw_switch">RAW + JPEG</string>
+    <string name="label_mode_auto">Auto</string>
+    <string name="label_mode_manual">Manual</string>
+    <string name="label_iso_default">ISO</string>
+    <string name="label_iso_value">ISO %1$d</string>
+    <string name="label_shutter_default">Shutter</string>
+    <string name="label_shutter_value">Shutter %1$s (device max %2$s)</string>
+
+    <string name="status_initializing">Starting camera…</string>
+    <string name="status_ready">Ready · %1$s</string>
+    <string name="status_ready_raw">Ready · RAW+JPEG · %1$s</string>
+    <string name="status_raw_unsupported">RAW not supported on this device — JPEG only</string>
+    <string name="status_no_camera">No usable camera found</string>
+    <string name="status_camera_error">Camera error</string>
+    <string name="status_permission_denied">Camera permission is required</string>
+    <string name="status_capture_failed">Capture failed</string>
+    <string name="status_save_failed">Failed to save image</string>
+    <string name="status_saved_jpeg">Saved %1$s</string>
+    <string name="status_saved_dng">Saved %1$s</string>
+    <string name="status_no_viewer">No app found to view the photo</string>
+</resources>
